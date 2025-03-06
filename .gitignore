@@ -1,0 +1,6 @@
+#Ignore MacOS System Files 
+.DS_Store
+
+#Ignore compiled binaries and temp files
+bin/
+obj/
