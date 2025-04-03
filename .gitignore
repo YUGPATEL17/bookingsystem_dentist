@@ -4,3 +4,4 @@
 #Ignore compiled binaries and temp files
 bin/
 obj/
+.vs/
