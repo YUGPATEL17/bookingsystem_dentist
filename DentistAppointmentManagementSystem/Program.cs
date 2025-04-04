@@ -1,11 +1,12 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient; 
+using System.IO;
+using Microsoft.Data.SqlClient; // Use Microsoft.Data.SqlClient instead of System.Data.SqlClient
 
 namespace DentistAppointmentManagementSystem
 {
-    
+    // Represents an appointment.
     public class Appointment
     {
         public int AppointmentID { get; set; }
@@ -264,6 +265,7 @@ namespace DentistAppointmentManagementSystem
                 Console.WriteLine("3. Search Appointment by Patient Name");
                 Console.WriteLine("4. Display All Appointments");
                 Console.WriteLine("5. Exit");
+                Console.WriteLine("6. Load Appointments from File");
                 Console.Write("Enter your choice: ");
                 string? choice = Console.ReadLine();
                 Console.WriteLine();
@@ -284,6 +286,9 @@ namespace DentistAppointmentManagementSystem
                         break;
                     case "5":
                         exit = true;
+                        break;
+                    case "6":
+                        LoadAppointmentsFromFile();
                         break;
                     default:
                         Console.WriteLine("Invalid choice. Please select a valid option.");
@@ -381,6 +386,54 @@ namespace DentistAppointmentManagementSystem
                 Console.WriteLine("Appointments for " + patientName + ":");
                 foreach (var app in resultNode.Appointments)
                     Console.WriteLine(app);
+            }
+        }
+
+        // Loads appointments from a text file.
+        static void LoadAppointmentsFromFile()
+        {
+            Console.Write("Enter the path to the text file: ");
+            string? filePath = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                Console.WriteLine("Invalid file path or file does not exist.");
+                return;
+            }
+
+            try
+            {
+                var lines = File.ReadAllLines(filePath);
+                foreach (var line in lines)
+                {
+                    // Expected format: AppointmentID|PatientName|DentistName|AppointmentDate|Description
+                    var parts = line.Split('|');
+                    if (parts.Length != 5)
+                    {
+                        Console.WriteLine($"Skipping invalid line: {line}");
+                        continue;
+                    }
+
+                    int id = int.Parse(parts[0]);
+                    string patient = parts[1];
+                    string dentist = parts[2];
+                    DateTime date = DateTime.Parse(parts[3]);
+                    string description = parts[4];
+
+                    Appointment appointment = new Appointment(id, patient, dentist, date, description);
+
+                    AppointmentDataAccess.InsertAppointment(appointment);
+                    appointmentBST.Insert(appointment);
+
+                    if (id >= nextAppointmentID)
+                        nextAppointmentID = id + 1;
+                }
+
+                Console.WriteLine("Appointments successfully loaded from file.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error reading file: " + ex.Message);
             }
         }
     }
