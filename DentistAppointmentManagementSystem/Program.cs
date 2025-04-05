@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Data.SqlClient; // Use Microsoft.Data.SqlClient instead of System.Data.SqlClient
+using Microsoft.Data.SqlClient; 
 
 namespace DentistAppointmentManagementSystem
 {
@@ -173,7 +173,7 @@ namespace DentistAppointmentManagementSystem
                 return SearchRecursive(node.Right, patientName);
         }
 
-        // In-order traversal to display all appointments.
+        // In-order traversal to display all appointments (legacy method).
         public void InOrderTraversal()
         {
             InOrderRecursive(root);
@@ -187,6 +187,23 @@ namespace DentistAppointmentManagementSystem
             foreach (var app in node.Appointments)
                 Console.WriteLine(app);
             InOrderRecursive(node.Right);
+        }
+
+        // Returns a list of appointments in order (in-order traversal).
+        public List<Appointment> GetAppointmentsInOrder()
+        {
+            List<Appointment> list = new List<Appointment>();
+            InOrderCollect(root, list);
+            return list;
+        }
+
+        private void InOrderCollect(BSTNode? node, List<Appointment> list)
+        {
+            if (node == null)
+                return;
+            InOrderCollect(node.Left, list);
+            list.AddRange(node.Appointments);
+            InOrderCollect(node.Right, list);
         }
 
         // Removes an appointment by its ID from the BST.
@@ -282,7 +299,7 @@ namespace DentistAppointmentManagementSystem
                         SearchAppointment();
                         break;
                     case "4":
-                        appointmentBST.InOrderTraversal();
+                        DisplayAppointmentsTable();
                         break;
                     case "5":
                         exit = true;
@@ -387,6 +404,29 @@ namespace DentistAppointmentManagementSystem
                 foreach (var app in resultNode.Appointments)
                     Console.WriteLine(app);
             }
+        }
+
+        // Displays all appointments in a formatted table.
+        static void DisplayAppointmentsTable()
+        {
+            List<Appointment> appointments = appointmentBST.GetAppointmentsInOrder();
+            if (appointments.Count == 0)
+            {
+                Console.WriteLine("No appointments available.");
+                return;
+            }
+
+            // Print table header
+            Console.WriteLine(new string('-', 110));
+            Console.WriteLine($"{"ID",5} {"Patient Name",20} {"Dentist Name",20} {"Date",20} {"Description",30}");
+            Console.WriteLine(new string('-', 110));
+
+            // Print each appointment in a formatted row.
+            foreach (var app in appointments)
+            {
+                Console.WriteLine($"{app.AppointmentID,5} {app.PatientName,20} {app.DentistName,20} {app.AppointmentDate.ToString("yyyy-MM-dd HH:mm"),20} {app.Description,30}");
+            }
+            Console.WriteLine(new string('-', 110));
         }
 
         // Loads appointments from a text file.
