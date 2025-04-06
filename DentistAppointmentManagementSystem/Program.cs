@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Data.SqlClient; 
+using Microsoft.Data.SqlClient; // Use Microsoft.Data.SqlClient instead of System.Data.SqlClient
 
 namespace DentistAppointmentManagementSystem
 {
@@ -342,17 +342,19 @@ namespace DentistAppointmentManagementSystem
             string patientName = Console.ReadLine() ?? "";
             Console.Write("Enter dentist name: ");
             string dentistName = Console.ReadLine() ?? "";
-            Console.Write("Enter appointment date (yyyy-MM-dd HH:mm): ");
-            DateTime appointmentDate;
-            if (!DateTime.TryParse(Console.ReadLine(), out appointmentDate))
+
+            // Get the appointment date via step-by-step inputs.
+            DateTime? appointmentDate = GetAppointmentDateFromUser();
+            if (appointmentDate == null)
             {
-                Console.WriteLine("Invalid date format.");
+                Console.WriteLine("Failed to get a valid appointment date.");
                 return;
             }
+
             Console.Write("Enter description: ");
             string description = Console.ReadLine() ?? "";
 
-            Appointment newAppointment = new Appointment(nextAppointmentID, patientName, dentistName, appointmentDate, description);
+            Appointment newAppointment = new Appointment(nextAppointmentID, patientName, dentistName, appointmentDate.Value, description);
             try
             {
                 AppointmentDataAccess.InsertAppointment(newAppointment);
@@ -363,6 +365,54 @@ namespace DentistAppointmentManagementSystem
             catch (Exception ex)
             {
                 Console.WriteLine("Error adding appointment: " + ex.Message);
+            }
+        }
+
+        // Helper method to get the appointment date from the user with separate inputs.
+        static DateTime? GetAppointmentDateFromUser()
+        {
+            Console.Write("Enter appointment year (e.g. 2025): ");
+            if (!int.TryParse(Console.ReadLine(), out int year))
+            {
+                Console.WriteLine("Invalid year input.");
+                return null;
+            }
+            Console.Write("Enter appointment month (1-12): ");
+            if (!int.TryParse(Console.ReadLine(), out int month) || month < 1 || month > 12)
+            {
+                Console.WriteLine("Invalid month input.");
+                return null;
+            }
+            Console.Write("Enter appointment day (1-31): ");
+            if (!int.TryParse(Console.ReadLine(), out int day) || day < 1 || day > 31)
+            {
+                Console.WriteLine("Invalid day input.");
+                return null;
+            }
+            Console.Write("Enter appointment time (HH:mm): ");
+            string? timeInput = Console.ReadLine();
+            if (string.IsNullOrEmpty(timeInput))
+            {
+                Console.WriteLine("Invalid time input.");
+                return null;
+            }
+            string[] timeParts = timeInput.Split(':');
+            if (timeParts.Length != 2 ||
+                !int.TryParse(timeParts[0], out int hour) ||
+                !int.TryParse(timeParts[1], out int minute))
+            {
+                Console.WriteLine("Invalid time format.");
+                return null;
+            }
+            try
+            {
+                DateTime appointmentDate = new DateTime(year, month, day, hour, minute, 0);
+                return appointmentDate;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error constructing date: " + ex.Message);
+                return null;
             }
         }
 
