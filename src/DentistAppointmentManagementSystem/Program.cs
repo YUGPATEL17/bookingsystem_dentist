@@ -97,6 +97,20 @@ namespace DentistAppointmentManagementSystem
                 }
             }
         }
+
+        // Removes all appointments from the database.
+        public static void RemoveAllAppointments()
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Appointments";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
     }
 
     // BST node for the custom data structure.
@@ -258,6 +272,12 @@ namespace DentistAppointmentManagementSystem
             node.Left = RemoveMin(node.Left);
             return node;
         }
+
+        // Checks if the BST is empty.
+        public bool IsEmpty()
+        {
+            return root == null;
+        }
     }
 
     // Main Program class.
@@ -283,6 +303,7 @@ namespace DentistAppointmentManagementSystem
                 Console.WriteLine("4. Display All Appointments");
                 Console.WriteLine("5. Exit");
                 Console.WriteLine("6. Load Appointments from File");
+                Console.WriteLine("7. Remove All Appointments");
                 Console.Write("Enter your choice: ");
                 string? choice = Console.ReadLine();
                 Console.WriteLine();
@@ -306,6 +327,9 @@ namespace DentistAppointmentManagementSystem
                         break;
                     case "6":
                         LoadAppointmentsFromFile();
+                        break;
+                    case "7":
+                        RemoveAllAppointments();
                         break;
                     default:
                         Console.WriteLine("Invalid choice. Please select a valid option.");
@@ -524,6 +548,23 @@ namespace DentistAppointmentManagementSystem
             catch (Exception ex)
             {
                 Console.WriteLine("Error reading file: " + ex.Message);
+            }
+        }
+
+        // Removes all appointments from both the database and the BST,
+        // then resets the ID counter to 1.
+        static void RemoveAllAppointments()
+        {
+            try
+            {
+                AppointmentDataAccess.RemoveAllAppointments();
+                appointmentBST = new AppointmentBST(); // Reset the BST.
+                nextAppointmentID = 1;
+                Console.WriteLine("All appointments removed.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error removing all appointments: " + ex.Message);
             }
         }
     }
