@@ -296,14 +296,7 @@ namespace DentistAppointmentManagementSystem
             bool exit = false;
             while (!exit)
             {
-                Console.WriteLine("\nDentist Appointment Management System");
-                Console.WriteLine("1. Add Appointment");
-                Console.WriteLine("2. Remove Appointment");
-                Console.WriteLine("3. Search Appointment by Patient Name");
-                Console.WriteLine("4. Display All Appointments");
-                Console.WriteLine("5. Exit");
-                Console.WriteLine("6. Load Appointments from File");
-                Console.WriteLine("7. Remove All Appointments");
+                DisplayMenu();
                 Console.Write("Enter your choice: ");
                 string? choice = Console.ReadLine();
                 Console.WriteLine();
@@ -337,6 +330,25 @@ namespace DentistAppointmentManagementSystem
                 }
             }
             Console.WriteLine("Exiting the application. Goodbye!");
+        }
+
+        // Displays the main menu in a table format.
+        static void DisplayMenu()
+        {
+            Console.WriteLine(new string('=', 60));
+            Console.WriteLine("Dentist Appointment Management System".PadLeft(40));
+            Console.WriteLine(new string('=', 60));
+            Console.WriteLine("+-------+-----------------------------------------+");
+            Console.WriteLine("| Option| Description                             |");
+            Console.WriteLine("+-------+-----------------------------------------+");
+            Console.WriteLine("| 1     | Add Appointment                         |");
+            Console.WriteLine("| 2     | Remove Appointment                      |");
+            Console.WriteLine("| 3     | Search Appointment by Patient Name      |");
+            Console.WriteLine("| 4     | Display All Appointments                |");
+            Console.WriteLine("| 5     | Exit                                    |");
+            Console.WriteLine("| 6     | Load Appointments from File             |");
+            Console.WriteLine("| 7     | Remove All Appointments                 |");
+            Console.WriteLine("+-------+-----------------------------------------+");
         }
 
         // Loads appointments from the SQL database and inserts them into the BST.
@@ -498,7 +510,7 @@ namespace DentistAppointmentManagementSystem
             // Print each appointment in a formatted row.
             foreach (var app in appointments)
             {
-                Console.WriteLine($"{app.AppointmentID,5} {app.PatientName,20} {app.DentistName,20} {app.AppointmentDate.ToString("yyyy-MM-dd HH:mm"),20} {app.Description,30}");
+                Console.WriteLine($"{app.AppointmentID,5} {app.PatientName,20} {app.DentistName,20} {app.AppointmentDate:yyyy-MM-dd HH:mm,20} {app.Description,30}");
             }
             Console.WriteLine(new string('-', 110));
         }
@@ -552,15 +564,15 @@ namespace DentistAppointmentManagementSystem
         }
 
         // Removes all appointments from both the database and the BST,
-        // then resets the ID counter to 1.
+        // then resets the ID counter to 0.
         static void RemoveAllAppointments()
         {
             try
             {
                 AppointmentDataAccess.RemoveAllAppointments();
                 appointmentBST = new AppointmentBST(); // Reset the BST.
-                nextAppointmentID = 1;
-                Console.WriteLine("All appointments removed.");
+                nextAppointmentID = 0;
+                Console.WriteLine("All appointments removed. Appointment counter reset to 0.");
             }
             catch (Exception ex)
             {
