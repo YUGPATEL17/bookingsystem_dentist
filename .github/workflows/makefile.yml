@@ -1,0 +1,39 @@
+name: .NET CI with Makefile
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    
+name: Checkout code
+    uses: actions/checkout@v4
+
+    
+name: Setup .NET SDK
+    uses: actions/setup-dotnet@v3
+    with:# Match your project's target framework, e.g. '7.0.x' or '8.0.x'
+      dotnet-version: '8.0.x'
+
+    
+name: Display Make version
+    run: make --version
+
+    
+name: Restore dependencies
+    run: make restore
+
+    
+name: Build solution
+    run: make build
+
+    
+name: Run tests
+    run: make test
