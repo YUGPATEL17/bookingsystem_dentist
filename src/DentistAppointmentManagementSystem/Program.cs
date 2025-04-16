@@ -2,7 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Data.SqlClient; // Use Microsoft.Data.SqlClient instead of System.Data.SqlClient
+using Microsoft.Data.SqlClient;
+using Spectre.Console;
 
 namespace DentistAppointmentManagementSystem
 {
@@ -30,13 +31,12 @@ namespace DentistAppointmentManagementSystem
         }
     }
 
-    // Data access class using ADO.NET to interact with the SQL database.
+    // Data access class using ADO.NET.
     public static class AppointmentDataAccess
     {
         // IMPORTANT: Update this connection string with your server and database details.
         private static string connectionString = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=DentistAppointmentsDB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;";
 
-        // Retrieves all appointments from the database.
         public static List<Appointment> GetAllAppointments()
         {
             List<Appointment> appointments = new List<Appointment>();
@@ -54,15 +54,13 @@ namespace DentistAppointmentManagementSystem
                         string dentist = reader.GetString(2);
                         DateTime date = reader.GetDateTime(3);
                         string description = reader.GetString(4);
-                        Appointment appointment = new Appointment(id, patient, dentist, date, description);
-                        appointments.Add(appointment);
+                        appointments.Add(new Appointment(id, patient, dentist, date, description));
                     }
                 }
             }
             return appointments;
         }
 
-        // Inserts a new appointment into the database.
         public static void InsertAppointment(Appointment appointment)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -82,7 +80,6 @@ namespace DentistAppointmentManagementSystem
             }
         }
 
-        // Removes an appointment from the database.
         public static bool RemoveAppointment(int appointmentID)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -98,7 +95,6 @@ namespace DentistAppointmentManagementSystem
             }
         }
 
-        // Removes all appointments from the database.
         public static void RemoveAllAppointments()
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -116,7 +112,7 @@ namespace DentistAppointmentManagementSystem
     // BST node for the custom data structure.
     public class BSTNode
     {
-        public string Key { get; set; } // Key is the patient's name.
+        public string Key { get; set; } // Patient name is used as the key.
         public List<Appointment> Appointments { get; set; }
         public BSTNode? Left { get; set; }
         public BSTNode? Right { get; set; }
@@ -135,12 +131,8 @@ namespace DentistAppointmentManagementSystem
     {
         private BSTNode? root;
 
-        public AppointmentBST()
-        {
-            root = null;
-        }
+        public AppointmentBST() => root = null;
 
-        // Inserts an appointment into the BST.
         public void Insert(Appointment appointment)
         {
             string key = appointment.PatientName;
@@ -154,25 +146,16 @@ namespace DentistAppointmentManagementSystem
 
             int cmp = string.Compare(key, node.Key, StringComparison.OrdinalIgnoreCase);
             if (cmp == 0)
-            {
                 node.Appointments.Add(appointment);
-            }
             else if (cmp < 0)
-            {
                 node.Left = InsertRecursive(node.Left, key, appointment);
-            }
             else
-            {
                 node.Right = InsertRecursive(node.Right, key, appointment);
-            }
+
             return node;
         }
 
-        // Searches for appointments by patient name.
-        public BSTNode? Search(string patientName)
-        {
-            return SearchRecursive(root, patientName);
-        }
+        public BSTNode? Search(string patientName) => SearchRecursive(root, patientName);
 
         private BSTNode? SearchRecursive(BSTNode? node, string patientName)
         {
@@ -187,23 +170,6 @@ namespace DentistAppointmentManagementSystem
                 return SearchRecursive(node.Right, patientName);
         }
 
-        // In-order traversal to display all appointments (legacy method).
-        public void InOrderTraversal()
-        {
-            InOrderRecursive(root);
-        }
-
-        private void InOrderRecursive(BSTNode? node)
-        {
-            if (node == null)
-                return;
-            InOrderRecursive(node.Left);
-            foreach (var app in node.Appointments)
-                Console.WriteLine(app);
-            InOrderRecursive(node.Right);
-        }
-
-        // Returns a list of appointments in order (in-order traversal).
         public List<Appointment> GetAppointmentsInOrder()
         {
             List<Appointment> list = new List<Appointment>();
@@ -220,7 +186,6 @@ namespace DentistAppointmentManagementSystem
             InOrderCollect(node.Right, list);
         }
 
-        // Removes an appointment by its ID from the BST.
         public bool RemoveByID(int appointmentID)
         {
             bool removed = false;
@@ -243,7 +208,6 @@ namespace DentistAppointmentManagementSystem
                 removed = true;
             }
 
-            // Remove node if no appointments remain.
             if (node.Appointments.Count == 0)
             {
                 if (node.Left == null)
@@ -273,85 +237,160 @@ namespace DentistAppointmentManagementSystem
             return node;
         }
 
-        // Checks if the BST is empty.
-        public bool IsEmpty()
-        {
-            return root == null;
-        }
+        public bool IsEmpty() => root == null;
     }
 
     // Main Program class.
     class Program
     {
-        // Global BST instance.
         static AppointmentBST appointmentBST = new AppointmentBST();
-        // Next appointment ID is set after loading data from the database.
         static int nextAppointmentID = 1;
+
+        static string masterPassword = "admin123";
+        static string employeePassword = "emp123";
+
+        // Helper methods that allow cancellation.
+        static string? AskStringOrBack(string prompt)
+        {
+            var result = AnsiConsole.Ask<string>($"{prompt} (or type 'back' to cancel):");
+            if (result.Trim().ToLower() == "back")
+                return null;
+            return result;
+        }
+
+        static int? AskIntOrBack(string prompt)
+        {
+            var input = AnsiConsole.Ask<string>($"{prompt} (or type 'back' to cancel):");
+            if (input.Trim().ToLower() == "back")
+                return null;
+            if (int.TryParse(input, out int value))
+                return value;
+            AnsiConsole.MarkupLine("[red]Invalid number.[/]");
+            return AskIntOrBack(prompt);
+        }
 
         static void Main(string[] args)
         {
-            // Load existing appointments from the database.
+            int accessLevel = LoginPage();
+            if (accessLevel == 1)
+                AnsiConsole.MarkupLine("[green]Admin access granted.[/]");
+            else if (accessLevel == 2)
+                AnsiConsole.MarkupLine("[green]Employee access granted.[/]");
+
+            AnsiConsole.Clear();
             LoadAppointmentsFromDatabase();
 
             bool exit = false;
             while (!exit)
             {
-                DisplayMenu();
-                Console.Write("Enter your choice: ");
-                string? choice = Console.ReadLine();
-                Console.WriteLine();
+                AnsiConsole.Clear();
 
-                switch (choice)
+                string headerArt = @"
+██████  ███████ ███    ██ ████████ ██ ██████  ███████ ███████ ██   ██ 
+██   ██ ██      ████   ██    ██    ██ ██   ██ ██      ██      ██  ██  
+██   ██ █████   ██ ██  ██    ██    ██ ██   ██ █████   ███████ █████   
+██   ██ ██      ██  ██ ██    ██    ██ ██   ██ ██           ██ ██  ██  
+██████  ███████ ██   ████    ██    ██ ██████  ███████ ███████ ██   ██ 
+                                                                     ";
+                AnsiConsole.MarkupLine(headerArt);
+                AnsiConsole.MarkupLine("[bold underline]Dentist Appointment Management System[/]");
+                AnsiConsole.MarkupLine("");
+
+                string choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[bold cyan]Select an option:[/]")
+                        .PageSize(10)
+                        .AddChoices(new[]
+                        {
+                            "Add Appointment",
+                            "Remove Appointment",
+                            "Search Appointment by Patient Name",
+                            "Display All Appointments",
+                            "Load Appointments from File",
+                            "Remove All Appointments",
+                            "Exit"
+                        }));
+
+                AnsiConsole.MarkupLine("");
+
+                // Each operation returns true if it was completed (and thus should pause),
+                // or false if the user cancelled (via "back") and no pause is needed.
+                bool completed = choice switch
                 {
-                    case "1":
-                        AddAppointment();
-                        break;
-                    case "2":
-                        RemoveAppointment();
-                        break;
-                    case "3":
-                        SearchAppointment();
-                        break;
-                    case "4":
-                        DisplayAppointmentsTable();
-                        break;
-                    case "5":
-                        exit = true;
-                        break;
-                    case "6":
-                        LoadAppointmentsFromFile();
-                        break;
-                    case "7":
-                        RemoveAllAppointments();
-                        break;
-                    default:
-                        Console.WriteLine("Invalid choice. Please select a valid option.");
-                        break;
+                    "Add Appointment" => AddAppointment(),
+                    "Remove Appointment" => RemoveAppointment(),
+                    "Search Appointment by Patient Name" => SearchAppointment(),
+                    "Display All Appointments" => DisplayAppointmentsTable(),
+                    "Load Appointments from File" => LoadAppointmentsFromFile(),
+                    "Remove All Appointments" => RemoveAllAppointments(),
+                    "Exit" => (exit = true, true).Item2,
+                    _ => false,
+                };
+
+                if (!exit && completed)
+                    Pause();
+            }
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[green]Exiting the application. Goodbye![/]");
+        }
+
+        // Pause is only called if the operation actually completed.
+        static void Pause()
+        {
+            AnsiConsole.MarkupLine("\n[grey]Press any key to continue...[/]");
+            Console.ReadKey(true);
+        }
+
+        static int LoginPage()
+        {
+            while (true)
+            {
+                string option = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[bold cyan]Welcome to DentiDesk[/]\n[bold]Choose an option:[/]")
+                        .AddChoices(new[] { "Login", "Reset/Change Password", "Exit" }));
+
+                if (option == "Exit")
+                {
+                    Environment.Exit(0);
+                }
+                else if (option == "Reset/Change Password")
+                {
+                    ResetPasswords();
+                    continue;
+                }
+                else if (option == "Login")
+                {
+                    string input = AnsiConsole.Prompt(
+                        new TextPrompt<string>("Enter password:")
+                            .Secret());
+                    if (input == masterPassword)
+                        return 1;
+                    else if (input == employeePassword)
+                        return 2;
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[red]Incorrect password. Try again.[/]");
+                        continue;
+                    }
                 }
             }
-            Console.WriteLine("Exiting the application. Goodbye!");
         }
 
-        // Displays the main menu in a table format.
-        static void DisplayMenu()
+        static void ResetPasswords()
         {
-            Console.WriteLine(new string('=', 60));
-            Console.WriteLine("Dentist Appointment Management System".PadLeft(40));
-            Console.WriteLine(new string('=', 60));
-            Console.WriteLine("+-------+-----------------------------------------+");
-            Console.WriteLine("| Option| Description                             |");
-            Console.WriteLine("+-------+-----------------------------------------+");
-            Console.WriteLine("| 1     | Add Appointment                         |");
-            Console.WriteLine("| 2     | Remove Appointment                      |");
-            Console.WriteLine("| 3     | Search Appointment by Patient Name      |");
-            Console.WriteLine("| 4     | Display All Appointments                |");
-            Console.WriteLine("| 5     | Exit                                    |");
-            Console.WriteLine("| 6     | Load Appointments from File             |");
-            Console.WriteLine("| 7     | Remove All Appointments                 |");
-            Console.WriteLine("+-------+-----------------------------------------+");
+            AnsiConsole.MarkupLine("[bold yellow]Reset/Change Passwords[/]");
+            string? newMaster = AskStringOrBack("Enter new master (admin) password:");
+            if (newMaster == null) return;
+            string? newEmployee = AskStringOrBack("Enter new employee password:");
+            if (newEmployee == null) return;
+            masterPassword = newMaster;
+            employeePassword = newEmployee;
+            AnsiConsole.MarkupLine("[green]Passwords updated successfully.[/]");
+            Pause();
+            AnsiConsole.Clear();
         }
 
-        // Loads appointments from the SQL database and inserts them into the BST.
         static void LoadAppointmentsFromDatabase()
         {
             try
@@ -363,168 +402,172 @@ namespace DentistAppointmentManagementSystem
                     if (appointment.AppointmentID >= nextAppointmentID)
                         nextAppointmentID = appointment.AppointmentID + 1;
                 }
-                Console.WriteLine($"{appointments.Count} appointments loaded from the database.");
+                AnsiConsole.MarkupLine($"[yellow]{appointments.Count} appointments loaded from the database.[/]");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error loading appointments from database: " + ex.Message);
+                AnsiConsole.MarkupLine("[red]Error loading appointments from database: [/]" + ex.Message);
             }
         }
 
-        // Adds a new appointment to both the database and the BST.
-        static void AddAppointment()
+        static bool AddAppointment()
         {
-            Console.Write("Enter patient name: ");
-            string patientName = Console.ReadLine() ?? "";
-            Console.Write("Enter dentist name: ");
-            string dentistName = Console.ReadLine() ?? "";
+            string? patientName = AskStringOrBack("Enter patient name");
+            if (patientName == null) return false;
 
-            // Get the appointment date via step-by-step inputs.
+            string? dentistName = AskStringOrBack("Enter dentist name");
+            if (dentistName == null) return false;
+
             DateTime? appointmentDate = GetAppointmentDateFromUser();
             if (appointmentDate == null)
             {
-                Console.WriteLine("Failed to get a valid appointment date.");
-                return;
+                AnsiConsole.MarkupLine("[red]Appointment creation canceled or failed.[/]");
+                return false;
             }
 
-            Console.Write("Enter description: ");
-            string description = Console.ReadLine() ?? "";
+            string? description = AskStringOrBack("Enter description");
+            if (description == null) return false;
 
             Appointment newAppointment = new Appointment(nextAppointmentID, patientName, dentistName, appointmentDate.Value, description);
             try
             {
                 AppointmentDataAccess.InsertAppointment(newAppointment);
                 appointmentBST.Insert(newAppointment);
-                Console.WriteLine("Appointment added successfully with ID " + nextAppointmentID);
+                AnsiConsole.MarkupLine($"[green]Appointment added successfully with ID {nextAppointmentID}.[/]");
                 nextAppointmentID++;
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error adding appointment: " + ex.Message);
+                AnsiConsole.MarkupLine("[red]Error adding appointment: [/]" + ex.Message);
+                return false;
             }
         }
 
-        // Helper method to get the appointment date from the user with separate inputs.
         static DateTime? GetAppointmentDateFromUser()
         {
-            Console.Write("Enter appointment year (e.g. 2025): ");
-            if (!int.TryParse(Console.ReadLine(), out int year))
+            int? year = AskIntOrBack("Enter appointment year (e.g. 2025)");
+            if (year == null) return null;
+
+            int? month = AskIntOrBack("Enter appointment month (1-12)");
+            if (month == null) return null;
+            if (month < 1 || month > 12)
             {
-                Console.WriteLine("Invalid year input.");
+                AnsiConsole.MarkupLine("[red]Invalid month provided.[/]");
                 return null;
             }
-            Console.Write("Enter appointment month (1-12): ");
-            if (!int.TryParse(Console.ReadLine(), out int month) || month < 1 || month > 12)
+
+            int? day = AskIntOrBack("Enter appointment day (1-31)");
+            if (day == null) return null;
+            if (day < 1 || day > 31)
             {
-                Console.WriteLine("Invalid month input.");
+                AnsiConsole.MarkupLine("[red]Invalid day provided.[/]");
                 return null;
             }
-            Console.Write("Enter appointment day (1-31): ");
-            if (!int.TryParse(Console.ReadLine(), out int day) || day < 1 || day > 31)
-            {
-                Console.WriteLine("Invalid day input.");
-                return null;
-            }
-            Console.Write("Enter appointment time (HH:mm): ");
-            string? timeInput = Console.ReadLine();
-            if (string.IsNullOrEmpty(timeInput))
-            {
-                Console.WriteLine("Invalid time input.");
-                return null;
-            }
+
+            string? timeInput = AskStringOrBack("Enter appointment time (HH:mm)");
+            if (timeInput == null) return null;
             string[] timeParts = timeInput.Split(':');
             if (timeParts.Length != 2 ||
                 !int.TryParse(timeParts[0], out int hour) ||
                 !int.TryParse(timeParts[1], out int minute))
             {
-                Console.WriteLine("Invalid time format.");
+                AnsiConsole.MarkupLine("[red]Invalid time format.[/]");
                 return null;
             }
             try
             {
-                DateTime appointmentDate = new DateTime(year, month, day, hour, minute, 0);
+                DateTime appointmentDate = new DateTime(year.Value, month.Value, day.Value, hour, minute, 0);
                 return appointmentDate;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error constructing date: " + ex.Message);
+                AnsiConsole.MarkupLine("[red]Error constructing date: [/]" + ex.Message);
                 return null;
             }
         }
 
-        // Removes an appointment (by ID) from both the database and the BST.
-        static void RemoveAppointment()
+        static bool RemoveAppointment()
         {
-            Console.Write("Enter appointment ID to remove: ");
-            if (!int.TryParse(Console.ReadLine(), out int id))
-            {
-                Console.WriteLine("Invalid input.");
-                return;
-            }
+            int? id = AskIntOrBack("Enter appointment ID to remove");
+            if (id == null) return false;
             try
             {
-                bool removedFromDB = AppointmentDataAccess.RemoveAppointment(id);
-                bool removedFromBST = appointmentBST.RemoveByID(id);
+                bool removedFromDB = AppointmentDataAccess.RemoveAppointment(id.Value);
+                bool removedFromBST = appointmentBST.RemoveByID(id.Value);
                 if (removedFromDB && removedFromBST)
-                    Console.WriteLine("Appointment removed successfully.");
+                {
+                    AnsiConsole.MarkupLine("[green]Appointment removed successfully.[/]");
+                    return true;
+                }
                 else
-                    Console.WriteLine("Appointment not found.");
+                {
+                    AnsiConsole.MarkupLine("[yellow]Appointment not found.[/]");
+                    return true;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error removing appointment: " + ex.Message);
+                AnsiConsole.MarkupLine("[red]Error removing appointment: [/]" + ex.Message);
+                return false;
             }
         }
 
-        // Searches for appointments by patient name using the BST.
-        static void SearchAppointment()
+        static bool SearchAppointment()
         {
-            Console.Write("Enter patient name to search: ");
-            string patientName = Console.ReadLine() ?? "";
+            string? patientName = AskStringOrBack("Enter patient name to search");
+            if (patientName == null) return false;
             BSTNode? resultNode = appointmentBST.Search(patientName);
             if (resultNode == null)
-                Console.WriteLine("No appointments found for patient " + patientName);
+            {
+                AnsiConsole.MarkupLine($"[yellow]No appointments found for patient {patientName}.[/]");
+                return true;
+            }
             else
             {
-                Console.WriteLine("Appointments for " + patientName + ":");
+                AnsiConsole.MarkupLine($"[green]Appointments for {patientName}:[/]");
                 foreach (var app in resultNode.Appointments)
-                    Console.WriteLine(app);
+                    AnsiConsole.MarkupLine(app.ToString());
+                return true;
             }
         }
 
-        // Displays all appointments in a formatted table.
-        static void DisplayAppointmentsTable()
+        static bool DisplayAppointmentsTable()
         {
             List<Appointment> appointments = appointmentBST.GetAppointmentsInOrder();
             if (appointments.Count == 0)
             {
-                Console.WriteLine("No appointments available.");
-                return;
+                AnsiConsole.MarkupLine("[yellow]No appointments available.[/]");
+                return true;
             }
 
-            // Print table header
-            Console.WriteLine(new string('-', 110));
-            Console.WriteLine($"{"ID",5} {"Patient Name",20} {"Dentist Name",20} {"Date",20} {"Description",30}");
-            Console.WriteLine(new string('-', 110));
+            var table = new Table();
+            table.AddColumn(new TableColumn("[u]ID[/]"));
+            table.AddColumn(new TableColumn("[u]Patient Name[/]"));
+            table.AddColumn(new TableColumn("[u]Dentist Name[/]"));
+            table.AddColumn(new TableColumn("[u]Date[/]"));
+            table.AddColumn(new TableColumn("[u]Description[/]"));
 
-            // Print each appointment in a formatted row.
             foreach (var app in appointments)
             {
-                Console.WriteLine($"{app.AppointmentID,5} {app.PatientName,20} {app.DentistName,20} {app.AppointmentDate:yyyy-MM-dd HH:mm,20} {app.Description,30}");
+                table.AddRow(app.AppointmentID.ToString(),
+                             app.PatientName,
+                             app.DentistName,
+                             app.AppointmentDate.ToString("yyyy-MM-dd HH:mm"),
+                             app.Description);
             }
-            Console.WriteLine(new string('-', 110));
+            AnsiConsole.Write(table);
+            return true;
         }
 
-        // Loads appointments from a text file.
-        static void LoadAppointmentsFromFile()
+        static bool LoadAppointmentsFromFile()
         {
-            Console.Write("Enter the path to the text file: ");
-            string? filePath = Console.ReadLine();
-
+            string? filePath = AskStringOrBack("Enter the path to the text file");
+            if (filePath == null) return false;
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             {
-                Console.WriteLine("Invalid file path or file does not exist.");
-                return;
+                AnsiConsole.MarkupLine("[red]Invalid file path or file does not exist.[/]");
+                return false;
             }
 
             try
@@ -536,10 +579,9 @@ namespace DentistAppointmentManagementSystem
                     var parts = line.Split('|');
                     if (parts.Length != 5)
                     {
-                        Console.WriteLine($"Skipping invalid line: {line}");
+                        AnsiConsole.MarkupLine($"[yellow]Skipping invalid line:[/] {line}");
                         continue;
                     }
-
                     int id = int.Parse(parts[0]);
                     string patient = parts[1];
                     string dentist = parts[2];
@@ -547,7 +589,6 @@ namespace DentistAppointmentManagementSystem
                     string description = parts[4];
 
                     Appointment appointment = new Appointment(id, patient, dentist, date, description);
-
                     AppointmentDataAccess.InsertAppointment(appointment);
                     appointmentBST.Insert(appointment);
 
@@ -555,28 +596,30 @@ namespace DentistAppointmentManagementSystem
                         nextAppointmentID = id + 1;
                 }
 
-                Console.WriteLine("Appointments successfully loaded from file.");
+                AnsiConsole.MarkupLine("[green]Appointments successfully loaded from file.[/]");
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error reading file: " + ex.Message);
+                AnsiConsole.MarkupLine("[red]Error reading file: [/]" + ex.Message);
+                return false;
             }
         }
 
-        // Removes all appointments from both the database and the BST,
-        // then resets the ID counter to 0.
-        static void RemoveAllAppointments()
+        static bool RemoveAllAppointments()
         {
             try
             {
                 AppointmentDataAccess.RemoveAllAppointments();
-                appointmentBST = new AppointmentBST(); // Reset the BST.
+                appointmentBST = new AppointmentBST();
                 nextAppointmentID = 0;
-                Console.WriteLine("All appointments removed. Appointment counter reset to 0.");
+                AnsiConsole.MarkupLine("[green]All appointments removed. Appointment counter reset to 0.[/]");
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error removing all appointments: " + ex.Message);
+                AnsiConsole.MarkupLine("[red]Error removing all appointments: [/]" + ex.Message);
+                return false;
             }
         }
     }
