@@ -28,34 +28,3 @@ Global
 		SolutionGuid = {EE975ABB-8ADD-4D3A-81A2-4F816DC90943}
 	EndGlobalSection
 EndGlobal
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35919.96
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DentistAppointmentManagementSystem", "src\DentistAppointmentManagementSystem\DentistAppointmentManagementSystem.csproj", "{0F12ECFE-6E35-46B1-84CD-B809CF2DF9F0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DentiDesk.test", "DentiDesk.test\DentiDesk.test.csproj", "{D7A2BAAF-A7CA-433B-BD7F-ADAC1FA3CC93}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0F12ECFE-6E35-46B1-84CD-B809CF2DF9F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F12ECFE-6E35-46B1-84CD-B809CF2DF9F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F12ECFE-6E35-46B1-84CD-B809CF2DF9F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F12ECFE-6E35-46B1-84CD-B809CF2DF9F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D7A2BAAF-A7CA-433B-BD7F-ADAC1FA3CC93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7A2BAAF-A7CA-433B-BD7F-ADAC1FA3CC93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7A2BAAF-A7CA-433B-BD7F-ADAC1FA3CC93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7A2BAAF-A7CA-433B-BD7F-ADAC1FA3CC93}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {EE975ABB-8ADD-4D3A-81A2-4F816DC90943}
-	EndGlobalSection
-EndGlobal
