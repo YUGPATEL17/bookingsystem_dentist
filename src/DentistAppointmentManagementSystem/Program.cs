@@ -134,7 +134,7 @@ namespace DentistAppointmentManagementSystem
                 AnsiConsole.Write(new Markup("[bold underline]Dentist Appointment Management System[/]").Centered());
                 AnsiConsole.WriteLine();
 
-                string instructions = "[white](Welcome, use the arrow keys to navigate and press [green]ENTER[/] to select)[/]";
+                string instructions = "[white]Welcome, use the arrow keys to navigate and press [green]ENTER[/] to select. The Default Admin Password Is admin123[/]";
                 var instrPanel = new Panel(new Markup(instructions))
                 {
                     Border = BoxBorder.Rounded,
@@ -202,8 +202,9 @@ namespace DentistAppointmentManagementSystem
                         "Display All Appointments",
                         "Load Appointments from File",
                         "Remove All Appointments",
+                        "Display All Employees",
                         "Add a new employee",
-                        "Remove Employee", // New option added here.
+                        "Remove Employee",
                         "Reset Password For an Employee",
                         "Log Out",
                         "Exit Application"
@@ -226,8 +227,9 @@ namespace DentistAppointmentManagementSystem
                     "Display All Appointments" => DisplayAppointmentsTable(),
                     "Load Appointments from File" => LoadAppointmentsFromFile(),
                     "Remove All Appointments" => RemoveAllAppointments(),
+                    "Display All Employees" => DisplayAllEmployees(),
                     "Add a new employee" => AddNewEmployee(),
-                    "Remove Employee" => RemoveEmployee(), // Call our new method.
+                    "Remove Employee" => RemoveEmployee(),
                     "Reset Password For an Employee" => ResetEmployeePassword(),
                     _ => false,
                 };
@@ -391,6 +393,33 @@ namespace DentistAppointmentManagementSystem
             AnsiConsole.Write(table);
             return true;
         }
+
+        /// <summary>
+        /// Fetch and show every employee (ID, Name, Designation) in a table.
+        /// </summary>
+        static bool DisplayAllEmployees()
+        {
+            var employees = EmployeeDataAccess.GetAllEmployees();
+            if (employees.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]No employees found.[/]");
+                return true;
+            }
+
+            var table = TableHelper.CreateRoundedTable();
+            table.AddColumn("[u]Employee ID[/]");
+            table.AddColumn("[u]Name[/]");
+            table.AddColumn("[u]Designation[/]");
+
+            foreach (var e in employees)
+            {
+                table.AddRow(e.EmployeeId.ToString(), e.Name, e.Designation);
+            }
+
+            AnsiConsole.Write(table);
+            return true;
+        }
+
 
         static bool AddAppointment()
         {
