@@ -6,16 +6,16 @@ PROJECT  = src/DentistAppointmentManagementSystem/DentistAppointmentManagementSy
 all: restore build test
 
 restore:
-    dotnet restore $(SOLUTION)
+	dotnet restore $(SOLUTION)
 
 build: restore
-    dotnet build $(SOLUTION) -c Release
+	dotnet build $(SOLUTION) -c Release
 
 test: build
-    dotnet test $(SOLUTION) -c Release --no-build
+	dotnet test $(SOLUTION) -c Release --no-build
 
 run: build
-    dotnet run --project $(PROJECT) -c Release -- $(ARGS)
+	dotnet run --project $(PROJECT) -c Release -- $(ARGS)
 
 clean:
-    dotnet clean $(SOLUTION)
+	dotnet clean $(SOLUTION)
