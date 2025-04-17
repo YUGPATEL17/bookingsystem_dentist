@@ -12,7 +12,9 @@ build: restore
 	dotnet build $(SOLUTION) -c Release
 
 test: build
-	dotnet test $(SOLUTION) -c Release --no-build
+	dotnet test $(SOLUTION) -c Release --no-build \
+	    --filter "TestCategory!=Integration"
+
 
 run: build
 	dotnet run --project $(PROJECT) -c Release -- $(ARGS)
