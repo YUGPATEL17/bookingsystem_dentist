@@ -1,39 +1,31 @@
-# DentiDesk – Dentist Appointment Management System
+# Dentist Appointment Management System
 
-## Overview
-**DentiDesk** is a C# console-based appointment management system developed as part of the CST2550 Software Engineering & Management module at Middlesex University. The application helps dental clinics manage appointments, patient information, and scheduling efficiently.
-## 👩‍💻 Roles
-- **Team Leader / Scrum Master**: Yug Patel
-- **Secretary**: Noopur Patel
-- **Developer**: Atharva Garud & Dev Patel
-- **Tester**: Mahmudul Saif
+A .NET 8 console application for managing dentist appointments, built with Spectre.Console for a rich CLI experience.  
+Includes an in‑memory BST for fast searches, SQL Server integration, file‑based import, and full unit/integration/performance testing via MSTest.
 
-
-## 📋 Features
-- Add, update, delete, and search patient appointments
-- Interactive console menu interface
-- Modular design following SOLID principles
-
-## 📄 Report
-The `/report/` folder contains the PDF report, covering:
-- Project introduction
-- Design decisions & data structure analysis
-- Testing approach and results
-- Critical reflection and conclusion
-
-## 🎥 Demonstration
-- A 6-minute walkthrough of the application's features and code explanation is provided in `/video/video_demonstration.mp4`.
-
-## 📧 Contact
-- **Yug Patel** - Team Lead / Scrum Master  (yp165@live.mdx.ac.uk)
-- **Noopur Patel** - Secretary (np855@live.mdx.ac.uk)
-- **Atharva Garud** - Developer #1 (ag1694@live.mdx.ac.uk)
-- **Dev Patel** - Developer #2 (dp999@live.mdx.ac.uk)
-- **Mahmudul Saif** - Tester (ms3402@live.mdx.ac.uk)
-
-## Module Tutors:  
-  - **Ahmed Eissa** 
-  - **Andrew Lewis-Smith** 
 ---
 
-> _This coursework was developed as part of the CST2550 module at Middlesex University._
+## Table of Contents
+
+1. [Features](#features)  
+2. [Prerequisites](#prerequisites)  
+3. [Installation](#installation)  
+4. [Makefile Targets](#makefile-targets)  
+5. [Building & Running](#building--running)  
+6. [Testing](#testing)  
+7. [Configuration](#configuration)  
+8. [Project Structure](#project-structure)  
+9. [Contributing](#contributing)
+
+---
+
+## Features
+
+- **Add / Remove / Search / List** appointments
+- **SQL Server** data persistence (MS SQL Express)  
+- **File import** to upload bulk appointments 
+- **Binary Search Tree** for in‑memory searches (O(log n) average)  
+- **Spectre.Console** UI: tables, prompts, status, etc.  
+- **Unit, integration & performance tests**  
+- **Makefile**–driven build/test workflow & GitHub Actions CI  
+
