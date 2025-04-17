@@ -28,19 +28,6 @@ It supports:
 
 ---
 
-## 📑 Table of Contents
-
-1. [Roles](#👩‍💻-roles)  
-2. [Features](#🔆-features)  
-3. [Prerequisites](#⛓-prerequisites)  
-4. [Database](#📊-database)  
-5. [Build & Run Locally](#🛠-build--run-locally)  
-6. [Usage](#❓-usage)  
-7. [CI / GitHub Actions](#⚙️-ci--github-actions)  
-8. [Testing](#🔎-testing)  
-
----
-
 ## 🔆 Features
 
 - **Add / Remove / Search / List** appointments
