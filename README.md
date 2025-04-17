@@ -1,4 +1,4 @@
-# DentiDesk - Dentist Appointment Management System
+# 📍 DentiDesk - Dentist Appointment Management System
 
 A .NET 8 cross‑platform .NET console application for managing dentist appointments. Built with Spectre.Console for rich text, tables, prompts and live updates.
 
@@ -12,19 +12,36 @@ It supports:
 
 ---
 
-## Table of Contents
+## 👩‍💻 Roles
 
-1. [Features](#features)  
-2. [Prerequisites](#prerequisites)  
-3. [Database](#database)  
-4. [Build & Run Locally](#build--run-locally)  
-5. [Usage](#usage)  
-6. [CI / GitHub Actions](#ci--github-actions)  
-7. [Testing](#testing)  
+
+- **Team Leader / Scrum Master**: Yug Patel (yp165@live.mdx.ac.uk)
+ 
+- **Secretary**: Noopur Patel (np855@live.mdx.ac.uk)
+ 
+- **Developer #1**: Atharva Garud (ag1694@live.mdx.ac.uk)
+
+- **Developer #2**: Dev Patel (dp999@live.mdx.ac.uk)
+ 
+- **Tester**: Mahmudul Saif (ms3402@live.mdx.ac.uk)
+
 
 ---
 
-## Features
+## 📑 Table of Contents
+
+1. [Roles](#👩‍💻-roles)  
+2. [Features](#🔆-features)  
+3. [Prerequisites](#⛓-prerequisites)  
+4. [Database](#📊-database)  
+5. [Build & Run Locally](#🛠-build--run-locally)  
+6. [Usage](#❓-usage)  
+7. [CI / GitHub Actions](#⚙️-ci--github-actions)  
+8. [Testing](#🔎-testing)  
+
+---
+
+## 🔆 Features
 
 - **Add / Remove / Search / List** appointments
 - **SQL Server** data persistence (MS SQL Express)  
@@ -36,7 +53,7 @@ It supports:
 
 ---
 
-## Prerequisites
+## ⛓ Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download)  
 - **SQL Server** (e.g. SQL Express / LocalDB)  
@@ -46,16 +63,19 @@ It supports:
 
 ---
 
-## Database
+## 📊 Database
+
 
 1. Open **SQL Server Management Studio**   
 2. Connect to your `localhost\SQLEXPRESS` (or the appropriate instance)  
 3. Open `db scripts/createdatabase.sql` and execute it to create the `DentistAppointmentsDB` database and tables
 
+
 ---
 
-## Build & Run Locally
+## 🛠 Build & Run Locally
 
+```
 Use the .NET CLI to get up and running:
 
 1. Restore all NuGet packages
@@ -66,10 +86,11 @@ dotnet build DentistAppointmentManagementSystem.sln -c Release
 
 3. Run the console app
 dotnet run --project src/DentistAppointmentManagementSystem/DentistAppointmentManagementSystem.csproj
+```
 
 ---
 
-## Usage
+## ❓ Usage
 
     - Launch the app, select role (Admin or Employee).
 
@@ -81,7 +102,7 @@ dotnet run --project src/DentistAppointmentManagementSystem/DentistAppointmentMa
 
 ---
 
-## CI / GitHub Actions
+## ⚙️ CI / GitHub Actions
 
 Our GitHub Actions workflow (.github/workflows/makefile.yml) will automatically:
 
@@ -95,7 +116,7 @@ Green checks on main mean your non‑integration tests are passing.
 
 ---
 
-## Testing
+## 🔎 Testing
 
 ### Unit, Edge‑Case, Performance & File Integration Tests
 
