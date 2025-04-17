@@ -16,6 +16,7 @@ namespace DentiDesk.test
         /// </summary>
         
         [TestMethod]
+        [TestCategory("Integration")]
         public void DatabaseIntegration_InsertAndRemoveAppointment()
         {
             // Create a test appointment with a unique ID to avoid conflict with existing records.
